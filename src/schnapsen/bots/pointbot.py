@@ -7,7 +7,7 @@ import random
 
 
 
-class PointBot(): 
+class PointBot(Bot): 
     """This bot plays differnet moves based on the points accumulated throughout the game"""
 
 
@@ -35,9 +35,12 @@ class PointBot():
 
         if my_points == 0 and opponent_points > 0: 
             pass 
+            if leader_move is not None: 
+                pass
+            
         if my_points < 33 and opponent_points > 33: 
             pass 
-        
+
 
         
 
