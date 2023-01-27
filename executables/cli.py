@@ -4,9 +4,9 @@ import pathlib
 from typing import Optional
 
 import click
-from schnapsen.bots import MLDataBot, train_ML_model, MLPlayingBot, RandBot, RdeepBot, AlphaBetaBot
+from schnapsen.bots import MLDataBot, train_ML_model, MLPlayingBot, RandBot, RdeepBot, AlphaBetaBot, PointBot
 
-from schnapsen.bots.alphabeta import AlphaBetaBot
+#from schnapsen.bots.alphabeta import AlphaBetaBot
 from schnapsen.bots.pointbot import PointBot
 
 from schnapsen.game import (Bot, Move, PlayerPerspective,
