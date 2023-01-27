@@ -4,19 +4,15 @@ from schnapsen.game import Bot, PlayerPerspective, Move, GameState, GamePlayEngi
 from schnapsen.deck import Card, Rank, Suit
 import random
 
-
-
 class PointBot(Bot): 
     """This bot plays different game strategies based on the points accumulated 
     throughout the game. If the bot has 0-33 points while the opponent has more 
     than 33 points, it will play aggressively. In all other cases it will play 
     passively."""
 
-
     def __init__(self, rng: random.Random) -> None:
         #Taken from bullybot 
         self.rng = rng
-
 
     def get_move(self, state: PlayerPerspective, leader_move: Optional[Move]) -> Move:
         """Return the move that will be played"""
@@ -116,5 +112,3 @@ class PointBot(Bot):
                 return marriage_trump_moves[0]
             else: 
                 return self.rng.choice(rng_move_list)
-
-
