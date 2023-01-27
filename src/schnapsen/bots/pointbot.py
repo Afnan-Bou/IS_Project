@@ -75,20 +75,63 @@ class PointBot(Bot):
 
         if my_points > 33 and opponent_points > 33: 
             #play passively 
-            for move in valid_moves: 
-                if not move.is_marriage(): 
-                    pass
                 #play in a way to ensure that you win the last trick.
             #if neither you or the opponent have played a marriage: 
             # then try to play out the last tricks in such a way that you win the last trick, so that you win the game even without reaching 66 points 
 
+            pass
 
-                #if not 
-       # else: 
-           # for move in valid_moves: 
-             #   rng_move_list.append(move)
-            #chosen_move = self.rng.choice(rng_move_list)
+        #In any other instance not described in the aforementioned conditions, play a random move. This condition will make sure the game can proceed even if the previous states do not occur
+        else: #for cases where my_points > 33 and opponent_points < 33, for example 
+            for move in valid_moves: 
+                rng_move_list.append(move)
+            
+            chosen_move = self.rng.choice(rng_move_list)
+            
+            return chosen_move
+
+        """Idea to change the code to just be two states since the bot only plays aggressively for one conditon and passively for all others"""
+        if 0<= my_points < 33 and opponent_points > 33: 
+            #play aggressively 
+            pass
+            
+            for move in valid_moves: 
+            #lead with a marriage, or a high ranking trump or an ace or ten 
+                if leader_move is None:
+                    if move.is_trump_exchange() or move.is_marriage(): 
+                        marriage_trump_moves.append(move)
+
+                
+
 
         else: 
-            return valid_moves #play any move 
+            #play passively (all the other states we mentioned involved playing passively and since the code is all the same we can just combine the states into one)
+            
+            for move in valid_moves:
+                #lead by announcing a marriage if possible, or lead with a low ranking, non-trump card 
+                if leader_move is None: 
+                    if move.is_trump_exchange() or move.is_marriage(): 
+                        marriage_trump_moves.append(move)
+                    else: 
+                        move_cards: list[Card] = move.cards
+                        if schnapsen_trick_scorer(move_cards[0].rank) <= 4 and move_cards[0].suit != trump_suit: 
+                            rng_move_list.append(move) 
+                
+                #if following, play a low ranking, non-trump card 
+                else: 
+                    move_cards: list[Card] = move.cards
+                    if schnapsen_trick_scorer(move_cards[0].rank) <= 4 and move_cards[0].suit != trump_suit: 
+                        rng_move_list.append(move) 
+            
+            #if no low ranking move is possible, the bot will play any of the valid moves at random
+            if len(rng_move_list) == 0: 
+                for move in valid_moves: 
+                    rng_move_list.append(move)
+
+            #If a trump exchange or marriage is not possible (no moves added to marriage_trump_moves) then the bot will play a random move
+            if len(marriage_trump_moves) != 0: 
+                return marriage_trump_moves[0]
+            else: 
+                return self.rng.choice(rng_move_list)
+
 
