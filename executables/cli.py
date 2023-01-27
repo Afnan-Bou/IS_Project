@@ -4,9 +4,10 @@ import pathlib
 from typing import Optional
 
 import click
-from schnapsen.bots import MLDataBot, train_ML_model, MLPlayingBot, RandBot
+from schnapsen.bots import MLDataBot, train_ML_model, MLPlayingBot, RandBot, RdeepBot, AlphaBetaBot
 
-from schnapsen.bots.example_bot import ExampleBot
+from schnapsen.bots.alphabeta import AlphaBetaBot
+from schnapsen.bots.pointbot import PointBot
 
 from schnapsen.game import (Bot, Move, PlayerPerspective,
                             SchnapsenGamePlayEngine, Trump_Exchange)
@@ -83,7 +84,7 @@ class HistoryBot(Bot):
 @main.command()
 def try_example_bot_game() -> None:
     engine = SchnapsenGamePlayEngine()
-    bot1 = ExampleBot()
+    bot1 = AlphaBetaBot()  #i replaced 'examplebot' here with alphabetabot just so that the file could run - alisa
     bot2 = RandBot(464566)
     winner, points, score = engine.play_game(bot1, bot2, random.Random(1))
     print(f"Winner is: {winner}, with {points} points!")
@@ -197,3 +198,12 @@ def game_24() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+@main.command()
+def play_my_game() -> None: 
+    engine = SchnapsenGamePlayEngine()
+    bot1 = PointBot(298434)
+    bot2 = RandBot(55444)
+    winner, points, score = engine.play_game(bot1, bot2, random.Random(1))
+    #print(f"Winner is: {winner}, card score was {score} and  {points} gamepoints!") #these two lines are copied from exercise answers 
