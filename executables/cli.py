@@ -196,10 +196,6 @@ def game_24() -> None:
         print(f"Game ended. Winner is {winner_id} with {game_points} points, score {score}")
 
 
-if __name__ == "__main__":
-    main()
-
-
 @main.command()
 def play_my_game() -> None: 
     engine = SchnapsenGamePlayEngine()
@@ -207,3 +203,7 @@ def play_my_game() -> None:
     bot2 = RandBot(55444)
     winner, points, score = engine.play_game(bot1, bot2, random.Random(1))
     #print(f"Winner is: {winner}, card score was {score} and  {points} gamepoints!") #these two lines are copied from exercise answers 
+
+if __name__ == "__main__":
+    main()
+

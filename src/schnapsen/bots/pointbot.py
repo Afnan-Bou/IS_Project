@@ -13,12 +13,13 @@ class PointBot(Bot):
     def __init__(self, rng: random.Random) -> None:
         #Taken from bullybot 
         self.rng = rng
+        
 
     def get_move(self, state: PlayerPerspective, leader_move: Optional[Move]) -> Move:
         """Return the move that will be played"""
 
         #Defining variables to store the valid moves that can be played, the number of points this bot has, the number of points the opponent has and the trump suit. 
-        valid_moves: list[Move] = state.valid_moves
+        valid_moves: list[Move] = state.valid_moves()
         my_points = state.get_my_score().direct_points
         opponent_points = state.get_opponent_score().direct_points
         trump_suit = state.get_trump_suit()
@@ -36,7 +37,7 @@ class PointBot(Bot):
         trump_moves: list[Move] = []
         same_suit_follower_moves: list[Move] = []
         
-        chosen_move: Move
+        chosen_move: Move 
         
 
         """Aggressive play"""
@@ -51,7 +52,7 @@ class PointBot(Bot):
                     else: 
                         move_cards: list[Card] = move.cards
                         if schnapsen_trick_scorer(move_cards[0].rank) == 11 and move_cards[0].suit == trump_suit: 
-                            chosen_move == move #if you have the ace of trumps, play it. It will guarantee winning a trick.
+                            chosen_move = move #if you have the ace of trumps, play it. It will guarantee winning a trick.
                             return chosen_move 
                         elif schnapsen_trick_scorer(move_cards[0].rank) >= 10 and move_cards[0].suit != trump_suit: 
                             high_rank_card_move.append(move) #play a 10 or an ace of a non-trump suit if you have one. 
@@ -76,14 +77,17 @@ class PointBot(Bot):
             if len(marriage_trump_moves) != 0: 
                 return marriage_trump_moves[0] #if possible, play a marriage or trump exchange
             else: 
-                if len(high_rank_card_move) == 0: #if there are no high rank card moves that can be played, play a random valid move
-                    return self.rng.choice(rng_move_list)
+                if len(high_rank_card_move) != 0:
+                    #return self.rng.choice(list(high_rank_card_move)) #play a random high ranking card from the list 
+                    return high_rank_card_move[0]
                 else:  
-                    return self.rng.choice(high_rank_card_move) #play a random high ranking card from the list 
-
-
+                    #return self.rng.choice(list(rng_move_list))  #if there are no high rank card moves that can be played, play a random valid move
+                    #return rng_move_list[0] 
+                    return valid_moves[0]
+ 
             """Passive play"""
         else: 
+            valid_moves: list[Move] = state.valid_moves()
             for move in valid_moves:
                 #if leading, lead by announcing a marriage if possible, or lead with a low ranking, non-trump card 
                 if leader_move is None: 
@@ -105,10 +109,62 @@ class PointBot(Bot):
                 for move in valid_moves: 
                     rng_move_list.append(move)
             else: 
-                return self.rng.choice(low_rank_card_move) #if there are low ranking moves possible, return one of them at random
+                if len(low_rank_card_move) > 1: 
+                    #return self.rng.choice(list(low_rank_card_move)) #if there are low ranking moves possible, return one of them at random
+                    return low_rank_card_move[0]
+                else: 
+                    return low_rank_card_move[0]
 
             #If a trump exchange or marriage is not possible (no moves added to marriage_trump_moves) then the bot will play a random move
             if len(marriage_trump_moves) != 0: 
                 return marriage_trump_moves[0]
             else: 
-                return self.rng.choice(rng_move_list)
+                #return self.rng.choice(list(rng_move_list))
+                #return rng_move_list[0]
+                return valid_moves[0]
+
+
+"""Im gonna try to run the cli.py game in this """
+import random
+import pathlib
+from typing import Optional
+import click
+from schnapsen.bots import MLDataBot, train_ML_model, MLPlayingBot, RandBot, RdeepBot, AlphaBetaBot, SchnapsenServer
+
+#from schnapsen.bots.alphabeta import AlphaBetaBot
+#from schnapsen.bots.pointbot import PointBot
+
+from schnapsen.game import (Bot, Move, PlayerPerspective,
+                            SchnapsenGamePlayEngine, Trump_Exchange)
+from schnapsen.twenty_four_card_schnapsen import \
+    TwentyFourSchnapsenGamePlayEngine
+
+from schnapsen.bots.rdeep import RdeepBot
+
+
+@click.group()
+def main() -> None:
+    """Various Schnapsen Game Examples"""
+
+#to run the game type: python src/schnapsen/bots/pointbot.py play-my-game
+@main.command()
+def play_my_game() -> None: 
+    engine = SchnapsenGamePlayEngine()
+    bot1 = PointBot(298434)
+    bot2 = RandBot(55444)
+    for i in range(10): 
+        winner, points, score = engine.play_game(bot1, bot2, random.Random(i))  #the i in brackets allows different games to be played 
+        print(f"Winner is: {winner}, card score was {score} and  {points} gamepoints!") #these two lines are copied from exercise answers 
+
+
+if __name__ == "__main__":
+    engine = SchnapsenGamePlayEngine()
+    with SchnapsenServer() as s:
+        bot1 = PointBot(12)
+        bot2 = s.make_gui_bot(name="mybot2")
+        # bot1 = s.make_gui_bot(name="mybot1")
+        engine.play_game(bot1, bot2, random.Random(100))
+
+
+if __name__ == "__main__":
+    main()
