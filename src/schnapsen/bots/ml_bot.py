@@ -102,7 +102,7 @@ class MLDataBot(Bot):
         # we also save the training label "won or lost"
         won_label = won
 
-        # we iterate over all the rounds of the game
+        # we iterate over all the rounds of the gam
         for round_player_perspective, round_trick in game_history:
 
             if round_trick.is_trump_exchange():
