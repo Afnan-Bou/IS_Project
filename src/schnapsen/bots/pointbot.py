@@ -150,21 +150,42 @@ def main() -> None:
 @main.command()
 def play_my_game() -> None: 
     engine = SchnapsenGamePlayEngine()
-    bot1 = PointBot(298434)
-    bot2 = RandBot(55444)
+    bot1 = PointBot(44)
+    bot2 = RandBot(3)
     for i in range(10): 
         winner, points, score = engine.play_game(bot1, bot2, random.Random(i))  #the i in brackets allows different games to be played 
         print(f"Winner is: {winner}, card score was {score} and  {points} gamepoints!") #these two lines are copied from exercise answers 
 
-
+"""
 if __name__ == "__main__":
     engine = SchnapsenGamePlayEngine()
     with SchnapsenServer() as s:
-        bot1 = PointBot(12)
+        bot1 = PointBot(13)
         bot2 = s.make_gui_bot(name="mybot2")
         # bot1 = s.make_gui_bot(name="mybot1")
-        engine.play_game(bot1, bot2, random.Random(100))
+        engine.play_game(bot1, bot2, random.Random(101))
+"""
+
+"""Function to store the data (we might need to change it up a bit)"""
+def play_games_and_return_stats(engine: SchnapsenGamePlayEngine, bot1: Bot, bot2: Bot, number_of_games: int) -> int:
+    """
+    Play number_of_games games between bot1 and bot2, using the SchnapsenGamePlayEngine, and return how often bot1 won.
+    Prints progress.
+    """
+    bot1_wins: int = 0
+    lead, follower = bot1, bot2
+    for i in range(1, number_of_games + 1):
+        if i % 2 == 0:
+            # swap bots so both start the same number of times
+            lead, follower = follower, lead
+        winner, _, _ = engine.play_game(lead, follower, random.Random(i))
+        if winner == bot1:
+            bot1_wins += 1
+        if i % 500 == 0:
+            print(f"Progress: {i}/{number_of_games}")
+    return bot1_wins
 
 
 if __name__ == "__main__":
     main()
+
