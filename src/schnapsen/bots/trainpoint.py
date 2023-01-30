@@ -163,7 +163,7 @@ def create_replay_memory_dataset() -> None:
 
     bot_1_behaviour: Bot = PointBot(298434)
     bot_2_behaviour: Bot = RandBot(55444)
-    # bot_3_behaviour: Bot = RdeepBot(5, 4, 17258)
+    # bot_3_behaviour: Bot = RdeepBot(16, 4, 17258)
     delete_existing_older_dataset = False
 
     # check if needed to delete any older versions of the dataset
@@ -180,17 +180,19 @@ def create_replay_memory_dataset() -> None:
     replay_memory_recording_bot_2 = MLDataBot(bot_2_behaviour, replay_memory_location)
     # replay_memory_recording_bot_3 = MLDataBot(bot_3_behaviour, replay_memory_location)
     
+    
     for i in range(1, num_of_games + 1):
         if i % 500 == 0:
             print(f"Progress: {i}/{num_of_games}")
         engine.play_game(replay_memory_recording_bot_1, replay_memory_recording_bot_2, random.Random(i))
         # engine.play_game(replay_memory_recording_bot_1, replay_memory_recording_bot_3, random.Random(i))
+
     print(f"Replay memory dataset recorder for {num_of_games} games.\nDataset is stored at: {replay_memory_location}")
 
 create_replay_memory_dataset()
 
 
-
+'''
 def train_model() -> None:
     # directory where the replay memory is saved
     replay_memory_filename: str = 'random_random_10k_games.txt'
@@ -213,3 +215,4 @@ def train_model() -> None:
     train_ML_model(replay_memory_location=replay_memory_location, model_location=model_location,
                    model_class='LR')
 
+'''

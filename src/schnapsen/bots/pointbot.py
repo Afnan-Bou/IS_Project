@@ -251,3 +251,26 @@ def try_bot_game() -> None:
 if __name__ == "__main__":
     main()
 
+
+# this is for the two-tailed binomial test 
+
+from scipy import stats
+
+## Comparing two bots: PointBot wins 663 out of 1000 games, and RandBot only 337
+k1 = 663 # number of wins of PointBot
+N1 = 1000 # total number of games
+p_value_rand = stats.binom_test(k1, N1, alternative='two-sided')
+
+## Comparing two bots: PointBot wins 619 out of 1000 games, and BullyBot only 381
+k2 = 619 # number of wins of PointBot
+N2 = 1000 # total number of games
+p_value_bully = stats.binom_test(k2, N2, alternative='two-sided')
+
+## Comparing two bots: PointBot wins 252 out of 1000 games, and RdeepBot 748
+k3 = 252 # number of wins of PointBot
+N3 = 1000 # total number of games
+p_value_rdeep = stats.binom_test(k3, N3, alternative='two-sided')
+
+print(p_value_rand)
+print(p_value_bully)
+print(p_value_rdeep)
