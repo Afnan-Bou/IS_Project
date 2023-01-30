@@ -152,9 +152,32 @@ def play_my_game() -> None:
     engine = SchnapsenGamePlayEngine()
     bot1 = PointBot(44)
     bot2 = RandBot(3)
-    for i in range(10): 
+    #bot2 = RdeepBot(num_samples=16, depth=4, rand=random.Random(4564654644))
+
+    bot1_wins = 0 
+    bot2_wins = 0
+    points_won_1 = 0 #number of times our bot lost against the opponent and lost 1 point
+    points_won_2 = 0
+    points_won_3 = 0
+
+    for i in range(1000): 
         winner, points, score = engine.play_game(bot1, bot2, random.Random(i))  #the i in brackets allows different games to be played 
-        print(f"Winner is: {winner}, card score was {score} and  {points} gamepoints!") #these two lines are copied from exercise answers 
+        
+        if winner != bot2: 
+            bot1_wins += 1 
+        if winner == bot2: 
+            bot2_wins += 1
+            
+            if points == 1: 
+                points_won_1 += 1
+            if points == 2: 
+                points_won_2 += 1 
+            if points == 3:
+                points_won_3 += 1 
+            
+       #print(f"Winner is: {winner}, card score was {score} and  {points} gamepoints!") #these two lines are copied from exercise answers 
+
+    print(f'{bot1} won {bot1_wins} times out of 1000. {bot2} won {bot2_wins} out of 1000, it scored 1 game point {points_won_1} times, 2 game points {points_won_2}, 3 game points {points_won_3}')
 
 """
 if __name__ == "__main__":
