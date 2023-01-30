@@ -150,10 +150,13 @@ def main() -> None:
 @main.command()
 def play_my_game() -> None: 
     engine = SchnapsenGamePlayEngine()
+    model_dir: str = 'ML_models'
+    model_name: str = 'simple_model'
+    model_location0 = pathlib.Path(model_dir) / model_name
     bot1 = PointBot(44)
     bot2 = RandBot(3)
     #bot2 = RdeepBot(num_samples=16, depth=4, rand=random.Random(4564654644))
-    #bot2 = MLPlayingBot(model_location=model_location)
+    #bot2 = MLPlayingBot(model_location=model_location0)
 
     bot1_wins = 0 
     bot2_wins = 0
@@ -197,17 +200,52 @@ def play_games_and_return_stats(engine: SchnapsenGamePlayEngine, bot1: Bot, bot2
     Prints progress.
     """
     bot1_wins: int = 0
+    bot2_wins: int = 0 
+    points_won_1: int = 0 
+    points_won_2: int = 0 
+    points_won_3: int = 0 
+
     lead, follower = bot1, bot2
     for i in range(1, number_of_games + 1):
         if i % 2 == 0:
             # swap bots so both start the same number of times
             lead, follower = follower, lead
-        winner, _, _ = engine.play_game(lead, follower, random.Random(i))
-        if winner == bot1:
-            bot1_wins += 1
-        if i % 500 == 0:
-            print(f"Progress: {i}/{number_of_games}")
-    return bot1_wins
+        winner, points, score = engine.play_game(lead, follower, random.Random(i))
+        if winner != bot2: 
+            bot1_wins += 1 
+        if winner == bot2: 
+            bot2_wins += 1
+            
+            if points == 1: 
+                points_won_1 += 1
+            if points == 2: 
+                points_won_2 += 1 
+            if points == 3:
+                points_won_3 += 1 
+        #if i % 500 == 0:
+            #print(f"Progress: {i}/{number_of_games}")
+    print(f'{bot1} won {bot1_wins} times out of 1000. {bot2} won {bot2_wins} out of 1000, it scored 1 game point {points_won_1} times, 2 game points {points_won_2}, 3 game points {points_won_3}')
+
+
+@main.group()
+def ml() -> None:
+    """Commands for the ML bot"""
+
+@ml.command()  #to run this command: python src/schnapsen/bots/pointbot.py ml try-bot-game
+def try_bot_game() -> None:
+    engine = SchnapsenGamePlayEngine()
+    model_dir: str = 'ML_models'
+    model_name: str = 'simple_model'
+    model_location = pathlib.Path(model_dir) / model_name
+    bot1: Bot = MLPlayingBot(model_location)
+    #bot2: Bot = RandBot(464566)
+    bot2: Bot = PointBot(44)
+    number_of_games: int = 1000
+
+    # play games with altering leader position on first rounds
+    ml_bot_wins_against_random = play_games_and_return_stats(engine=engine, bot1=bot1, bot2=bot2, number_of_games=number_of_games)
+    print(f"The ML bot with name {model_name}, won {ml_bot_wins_against_random} times out of {number_of_games} games played.")
+
 
 
 if __name__ == "__main__":
