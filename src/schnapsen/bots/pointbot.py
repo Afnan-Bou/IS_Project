@@ -153,6 +153,7 @@ def play_my_game() -> None:
     bot1 = PointBot(44)
     bot2 = RandBot(3)
     #bot2 = RdeepBot(num_samples=16, depth=4, rand=random.Random(4564654644))
+    #bot2 = MLPlayingBot(model_location=model_location)
 
     bot1_wins = 0 
     bot2_wins = 0
