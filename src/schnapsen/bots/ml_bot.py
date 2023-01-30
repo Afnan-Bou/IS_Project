@@ -85,7 +85,7 @@ class MLDataBot(Bot):
     def get_move(self, state: PlayerPerspective, leader_move: Optional[Move]) -> Move:
         """
             This function simply calls the get_move of the provided bot
-        """
+        """      
         return self.bot.get_move(state=state, leader_move=leader_move)
 
     def notify_game_end(self, won: bool, state: PlayerPerspective) -> None:
