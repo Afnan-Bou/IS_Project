@@ -350,20 +350,20 @@ def play_my_game() -> None:
 """Binomial Test"""
 from scipy import stats
 
-## Comparing two bots: PointBot wins 663 out of 1000 games, and RandBot only 337
-k1 = 663 # number of wins of PointBot
+## Comparing two bots: PointBot wins 542 out of 1000 games, and RandBot only 458
+k1 = 542 # number of wins of PointBot
 N1 = 1000 # total number of games
-p_value_rand = stats.binom_test(k1, N1, alternative='two-sided')
+p_value_rand = stats.binom_test(k1, N1, alternative='greater') 
 
-## Comparing two bots: PointBot wins 619 out of 1000 games, and BullyBot only 381
-k2 = 619 # number of wins of PointBot
+## Comparing two bots: PointBot wins 586 out of 1000 games, and BullyBot only 414
+k2 = 586 # number of wins of PointBot
 N2 = 1000 # total number of games
-p_value_bully = stats.binom_test(k2, N2, alternative='two-sided')
+p_value_bully = stats.binom_test(k2, N2, alternative='greater')
 
-## Comparing two bots: PointBot wins 252 out of 1000 games, and RdeepBot 748
-k3 = 252 # number of wins of PointBot
+## Comparing two bots: PointBot wins 219 out of 1000 games, and RdeepBot 781
+k3 = 219 # number of wins of PointBot
 N3 = 1000 # total number of games
-p_value_rdeep = stats.binom_test(k3, N3, alternative='two-sided')
+p_value_rdeep = stats.binom_test(k3, N3, alternative='less')
 
 print(p_value_rand)
 print(p_value_bully)
