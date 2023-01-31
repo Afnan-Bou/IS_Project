@@ -1,7 +1,7 @@
 #imports: 
 from typing import Optional
-from schnapsen.game import Bot, PlayerPerspective, Move, GameState, GamePlayEngine, SchnapsenTrickScorer, Marriage, Score
-from schnapsen.deck import Card, Rank, Suit
+from schnapsen.game import Bot, PlayerPerspective, Move, SchnapsenTrickScorer
+from schnapsen.deck import Card, Suit
 import random
 
 class PointBot(Bot): 
@@ -10,9 +10,9 @@ class PointBot(Bot):
     than 33 points, it will play aggressively. In all other cases it will play 
     passively."""
 
-    def __init__(self, rng: random.Random) -> None:
+    """def __init__(self) -> None:
         #Taken from bullybot 
-        self.rng = rng
+        #self.rng = rng"""
         
 
     def get_move(self, state: PlayerPerspective, leader_move: Optional[Move]) -> Move:
@@ -32,11 +32,6 @@ class PointBot(Bot):
 
         #To obtain the rank of a card: 
         schnapsen_trick_scorer = SchnapsenTrickScorer().rank_to_points
-       
-        #I didn't actually use these two lists but maybe we should incorporate them? ill just leave them here for now. 
-        trump_moves: list[Move] = []
-        same_suit_follower_moves: list[Move] = []
-        
         chosen_move: Move 
         
 
@@ -124,23 +119,102 @@ class PointBot(Bot):
                 return valid_moves[0]
 
 
+#####################bully bot ##############
+import random
+from typing import Optional
+from schnapsen.game import Bot, PlayerPerspective, Move, SchnapsenTrickScorer, RegularMove
+from schnapsen.deck import Card, Suit
+
+
+class BullyBot(Bot):
+    def __init__(self, rng: random.Random) -> None:
+        self.rng = rng
+
+    def get_move(self, player_perspective: PlayerPerspective, leader_move: Optional[Move], ) -> Move:
+        # The bully bot only plays valid moves.
+        # get all valid moves
+        my_valid_moves = player_perspective.valid_moves()
+        trump_suit_moves: list[Move] = []
+
+        # get the trump suit
+        trump_suit: Suit = player_perspective.get_trump_suit()
+
+        # get all my valid moves that have the same suit with trump suit.
+        for move in my_valid_moves:
+            cards_of_move: list[Card] = move.cards
+            # get 1st of the list of cards of this move (in case of multiple -> Marriage)
+            card_of_move: Card = cards_of_move[0]
+
+            if card_of_move.suit == trump_suit:
+                trump_suit_moves.append(move)
+
+        # If you have cards of the trump suit, play one of them at random
+        if len(trump_suit_moves) > 0:
+            #random_trump_suit_move = self.rng.choice(trump_suit_moves)
+            #return random_trump_suit_move
+            return trump_suit_moves[0]
+
+        # Else, if you are the follower and you have cards of the same suit as the opponent, play one of these at random.
+        if not player_perspective.am_i_leader():
+            assert leader_move is not None
+            leader_suit: Suit = leader_move.cards[0].suit
+            leaders_suit_moves: list[Move] = []
+
+            # get all my valid moves that have the same suit with leader suit.
+            for move in my_valid_moves:
+                cards_of_move = move.cards
+                # get 1st of the list of cards of this move (in case of multiple -> Marriage)
+                card_of_move = cards_of_move[0]
+
+                if card_of_move.suit == leader_suit:
+                    leaders_suit_moves.append(move)
+
+            if len(leaders_suit_moves) > 0:
+                #random_leader_suit_move = self.rng.choice(leaders_suit_moves)
+                #return random_leader_suit_move
+                return leaders_suit_moves[0]
+
+        # Else, play one of your cards with the highest rank
+
+        # get the list of cards in my hand
+        my_hand_cards: list[Card] = player_perspective.get_hand().cards
+
+        # create an instance object of a SchnapsenTrickScorer Class, that allows us to get the rank of Cards.
+        schnapsen_trick_scorer = SchnapsenTrickScorer()
+        # we set the highest rank to something negative, forcing it to change with the first comparison, since all scores are positive
+        highest_card_score: int = -1
+        card_with_highest_score: Optional[Card] = None
+        for card in my_hand_cards:
+            card_score = schnapsen_trick_scorer.rank_to_points(card.rank)
+            if card_score > highest_card_score:
+                highest_card_score = card_score
+                card_with_highest_score = card
+
+        # if our logic above was correct, this can never be None. We double check to make sure.
+        assert card_with_highest_score is not None
+
+        # We now create a move out of this card. Note that here we do not return a move from a call to valid_moves.
+        # An alternative implementaiton would first have taken all valid moves and subsequently filtered these down to
+        # the list of valid cards. Then, we would have found the one with the highest score from that.
+        move_of_card_with_highest_score = RegularMove(card_with_highest_score)
+
+        # We can double check that this is a valid move like this.
+        assert move_of_card_with_highest_score in my_valid_moves
+
+        return move_of_card_with_highest_score
+
+
+
+
 """Im gonna try to run the cli.py game in this """
 import random
 import pathlib
 from typing import Optional
 import click
-from schnapsen.bots import MLDataBot, train_ML_model, MLPlayingBot, RandBot, RdeepBot, AlphaBetaBot, SchnapsenServer
-
-#from schnapsen.bots.alphabeta import AlphaBetaBot
-#from schnapsen.bots.pointbot import PointBot
+from schnapsen.bots import RandBot, RdeepBot, AlphaBetaBot, SchnapsenServer, MLDataBot, MLPlayingBot, train_ML_model
 
 from schnapsen.game import (Bot, Move, PlayerPerspective,
-                            SchnapsenGamePlayEngine, Trump_Exchange)
-from schnapsen.twenty_four_card_schnapsen import \
-    TwentyFourSchnapsenGamePlayEngine
-
-from schnapsen.bots.rdeep import RdeepBot
-
+                            SchnapsenGamePlayEngine)
 
 @click.group()
 def main() -> None:
@@ -150,25 +224,21 @@ def main() -> None:
 @main.command()
 def play_my_game() -> None: 
     engine = SchnapsenGamePlayEngine()
-    model_dir: str = 'ML_models'
-    model_name: str = 'simple_model'
-    model_location0 = pathlib.Path(model_dir) / model_name
-    bot1 = PointBot(44)
-    bot2 = RandBot(3)
-    #bot2 = RdeepBot(num_samples=16, depth=4, rand=random.Random(4564654644))
-    #bot2 = MLPlayingBot(model_location=model_location0)
-
+    bot1 = PointBot()
+    bot2 = RandBot(5555555)
+    #bot2 = RdeepBot(num_samples=16, depth=4, rand=random.Random(5555555))
+    #bot2 = BullyBot(555555)
     bot1_wins = 0 
     bot2_wins = 0
     points_won_1 = 0 #number of times our bot lost against the opponent and lost 1 point
     points_won_2 = 0
     points_won_3 = 0
     lead, follower = bot1, bot2
-    for i in range(1000):
+   
+    for i in range(1000): 
         if i % 2 == 0:
             # swap bots so both start the same number of times
             lead, follower = follower, lead
-    for i in range(1000): 
         winner, points, score = engine.play_game(lead, follower, random.Random(i))  #the i in brackets allows different games to be played 
         
         if winner != bot2: 
@@ -250,6 +320,7 @@ def try_bot_game() -> None:
 
     # play games with altering leader position on first rounds
     ml_bot_wins_against_random = play_games_and_return_stats(engine=engine, bot1=bot1, bot2=bot2, number_of_games=number_of_games)
+    #ml_bot_wins_against_random = play_my_game()
     print(f"The ML bot with name {model_name}, won {ml_bot_wins_against_random} times out of {number_of_games} games played.")
 
 
