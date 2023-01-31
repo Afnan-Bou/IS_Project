@@ -194,6 +194,7 @@ class BullyBot(Bot):
 
         return move_of_card_with_highest_score
 
+
 """RdeepBot"""
 from typing import Optional
 from schnapsen.game import Bot, PlayerPerspective, Move, GameState, GamePlayEngine
@@ -346,10 +347,7 @@ def play_my_game() -> None:
     print(f'{bot1} won {bot1_wins} times out of 1000. {bot2} won {bot2_wins} out of 1000, it scored 1 game point {points_won_1} times, 2 game points {points_won_2}, 3 game points {points_won_3}')
 
 
-
-
 """Binomial Test"""
-
 from scipy import stats
 
 ## Comparing two bots: PointBot wins 663 out of 1000 games, and RandBot only 337
